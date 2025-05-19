@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="opennote",
-    version="0.1.0",
+    version="0.1.1",
     author="Opennote, Inc.",
     author_email="devtools@opennote.me",
     description="Opennote Python SDK",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/opennote-ai/opennote-python-sdk",
+    url="https://github.com/opennote-dev/api-sdk-python",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
