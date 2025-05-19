@@ -12,6 +12,9 @@ class AsyncVideo:
         messages: list[dict[str, str]] = [], 
         script: list[str] = [],
     ) -> VideoCreateResponse:
+        if not messages and not script:
+            raise ValueError("Either messages or script must be provided")
+        
         headers = {
             "Authorization": f"Bearer {self._client._api_key}",
             "Content-Type": "application/json",
@@ -30,6 +33,9 @@ class AsyncVideo:
         
     
     async def status(self, video_id: str) -> VideoStatusAPIResponse:
+        if not video_id:
+            raise ValueError("video_id must be provided")
+
         url = f"{self._client._base_url}/video/{video_id}"
         headers = {
             "Content-Type": "application/json",
