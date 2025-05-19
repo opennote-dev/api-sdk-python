@@ -19,7 +19,7 @@ class Video:
             "Authorization": f"Bearer {self._client._api_key}",
             "Content-Type": "application/json",
         }
-        url = f"{self._client._base_url}/video/create"
+        url = f"{self._client._base_url}/video/make"
         payload = {
             "sections": sections,
             "model": model,
@@ -35,7 +35,7 @@ class Video:
         if not video_id:
             raise ValueError("video_id must be provided")
 
-        url = f"{self._client._base_url}/video/{video_id}"
+        url = f"{self._client._base_url}/video/status/{video_id}"
         headers = {
             "Content-Type": "application/json",
         }
