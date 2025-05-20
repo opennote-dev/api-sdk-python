@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="opennote",
-    version="1.0.1",
+    version="1.0.2",
     author="Opennote, Inc.",
     author_email="devtools@opennote.me",
     description="Opennote Python SDK",
