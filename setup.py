@@ -7,6 +7,7 @@ setuptools.setup(
     name="opennote",
     version="1.0.2r1",
     author="Opennote, Inc.",
+    license="MIT",
     author_email="devtools@opennote.me",
     description="Opennote Python SDK",
     long_description=long_description,
