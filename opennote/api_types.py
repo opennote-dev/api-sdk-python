@@ -16,10 +16,15 @@ class VideoCreateResponse(BaseModel):
 
 
 # video.status Types 
+
+class Source(BaseModel):
+    url: str
+    content: str
+
 class VideoAPIResponseData(BaseModel): 
     video_url: str
     transcript: str
-    sources: list
+    sources: list[Source]
 
 class OpennoteUsage(BaseModel):
     total_tokens_used: int
