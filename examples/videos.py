@@ -3,7 +3,7 @@ from os import getenv
 from json import dumps
 import time
 
-client = OpennoteClient(api_key=getenv("OPENNOTE_API_KEY"), base_url="http://localhost:8080")
+client = OpennoteClient(api_key=getenv("OPENNOTE_API_KEY"))
 
 SEPERATOR = "================================\n"
 
