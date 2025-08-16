@@ -1,52 +1,191 @@
-import requests
-from opennote.api_types import *
+from typing import Optional, List, Literal
+import httpx
+from opennote.api_types import (
+    VideoCreateJobRequest,
+    VideoCreateJobResponse,
+    VideoJobStatusResponse,
+    JournalsResponse,
+    JournalContentResponse,
+    VideoAPIRequestMessage,
+)
+from opennote.base_client import BaseClient
+from opennote.api_types import OPENNOTE_BASE_URL
 
 
 class Video:
-    def __init__(self, client):
+    """Video endpoints for Opennote API."""
+    
+    def __init__(self, client: "OpennoteClient"):
         self._client = client
 
-    def make(self, 
-        sections: int = 5, 
-        model: MODEL_CHOICES = "feynman2", 
-        messages: list[dict[str, str]] = [], 
-        script: list[str] = [],
-    ) -> VideoCreateResponse:
-        if not messages and not script:
-            raise ValueError("Either messages or script must be provided")
+    def create(
+        self,
+        messages: Optional[List[VideoAPIRequestMessage]] = None,
+        model: Optional[Literal["picasso"]] = "picasso",
+        include_sources: Optional[bool] = False,
+        search_for: Optional[str] = None,
+        source_count: Optional[int] = 3,
+        length: Optional[int] = 3,
+        script: Optional[str] = None,
+        upload_to_s3: Optional[bool] = False,
+        no_cache: Optional[bool] = True,
+        title: Optional[str] = "",
+    ) -> VideoCreateJobResponse:
+        """
+        Create a new video job.
         
-        headers = {
-            "Authorization": f"Bearer {self._client._api_key}",
-            "Content-Type": "application/json",
-        }
-        url = f"{self._client._base_url}/video/make"
-        payload = {
-            "sections": sections,
-            "model": model,
-            "messages": messages,
-            "script": script,
-        }
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        return VideoCreateResponse(**response.json())
-    
+        Args:
+            messages: List of messages for video script generation
+            model: Model to use (default: "picasso")
+            include_sources: Whether to gather web data for the script
+            search_for: Query to search the web (max 100 chars)
+            source_count: Number of web sources to gather (1-5)
+            length: Number of paragraphs in script (1-5)
+            script: Pre-written script with sections delimited by '-----' (max 6000 chars)
+            upload_to_s3: Whether to upload video to S3
+            no_cache: Whether to disable server caching
+            title: Title of the video
+            
+        Returns:
+            VideoCreateJobResponse with success status and video_id
+        """
+        request = VideoCreateJobRequest(
+            messages=messages,
+            model=model,
+            include_sources=include_sources,
+            search_for=search_for,
+            source_count=source_count,
+            length=length,
+            script=script,
+            upload_to_s3=upload_to_s3,
+            no_cache=no_cache,
+            title=title,
+        )
+        
+        response = self._client._request(
+            "POST",
+            "/v1/video/create",
+            json=request.model_dump(exclude_none=True),
+        )
+        return VideoCreateJobResponse(**response)
 
-    def status(self, video_id: str) -> VideoStatusAPIResponse:
+    def status(self, video_id: str) -> VideoJobStatusResponse:
+        """
+        Get the status of a video job.
+        
+        Args:
+            video_id: ID of the video job
+            
+        Returns:
+            VideoJobStatusResponse with status and completion details
+        """
         if not video_id:
             raise ValueError("video_id must be provided")
-
-        url = f"{self._client._base_url}/video/status/{video_id}"
-        headers = {
-            "Content-Type": "application/json",
-        }
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        return VideoStatusAPIResponse(**response.json())
+        
+        response = self._client._request(
+            "GET",
+            f"/v1/video/status/{video_id}",
+        )
+        return VideoJobStatusResponse(**response)
 
 
+class Journals:
+    """Journal endpoints for Opennote API."""
+    
+    def __init__(self, client: "OpennoteClient"):
+        self._client = client
 
-class OpennoteVideoClient:
-    def __init__(self, api_key: str, base_url: str | None = None):
-        self._api_key = api_key
-        self._base_url = base_url or OPENNOTE_BASE_URL
+    def list(self, page_token: Optional[int] = None) -> JournalsResponse:
+        """
+        List journals with pagination.
+        
+        Args:
+            page_token: Token for pagination
+            
+        Returns:
+            JournalsResponse with list of journals and next page token
+        """
+        params = {}
+        if page_token is not None:
+            params["page_token"] = page_token
+            
+        response = self._client._request(
+            "GET",
+            "/v1/journals/list",
+            params=params,
+        )
+        return JournalsResponse(**response)
+
+    def content(self, journal_id: str) -> JournalContentResponse:
+        """
+        Get content of a specific journal.
+        
+        Args:
+            journal_id: ID of the journal
+            
+        Returns:
+            JournalContentResponse with journal content
+        """
+        if not journal_id:
+            raise ValueError("journal_id must be provided")
+        
+        response = self._client._request(
+            "GET",
+            f"/v1/journals/content/{journal_id}",
+        )
+        return JournalContentResponse(**response)
+
+
+class OpennoteClient(BaseClient):
+    """Synchronous client for Opennote API."""
+    
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str = OPENNOTE_BASE_URL,
+        timeout: float = 60.0,
+        max_retries: int = 3,
+    ):
+        super().__init__(api_key, base_url, timeout, max_retries)
         self.video = Video(self)
+        self.journals = Journals(self)
+        self._client = None
+
+    def __enter__(self):
+        self._client = httpx.Client(
+            base_url=self.base_url,
+            headers=self._get_headers(),
+            timeout=self.timeout,
+        )
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._client:
+            self._client.close()
+
+    def _request(
+        self,
+        method: str,
+        path: str,
+        **kwargs
+    ) -> dict:
+        """Make a request to the API."""
+        if not self._client:
+            # Create a client for one-off requests
+            with httpx.Client(
+                base_url=self.base_url,
+                headers=self._get_headers(),
+                timeout=self.timeout,
+            ) as client:
+                response = client.request(method, path, **kwargs)
+                return self._process_response(response)
+        else:
+            response = self._client.request(method, path, **kwargs)
+            return self._process_response(response)
+
+    def health(self) -> dict:
+        """Check API health status."""
+        return self._request("GET", "/v1/health")
+
+
+Opennote: OpennoteClient = OpennoteClient

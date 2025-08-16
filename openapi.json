@@ -1,0 +1,921 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+    "title": "Opennote API Platform",
+    "version": "1.0.0"
+    },
+    "paths": {
+    "/v1/video/create": {
+    "post": {
+    "summary": "Create Video",
+    "operationId": "create_video_v1_video_create_post",
+    "requestBody": {
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/VideoCreateJobRequest"
+    }
+    }
+    },
+    "required": true
+    },
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/VideoCreateJobResponse"
+    }
+    }
+    }
+    },
+    "401": {
+    "description": "Invalid API key or unauthorized access"
+    },
+    "402": {
+    "description": "Insufficient credits"
+    },
+    "422": {
+    "description": "Validation Error",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/HTTPValidationError"
+    }
+    }
+    }
+    },
+    "429": {
+    "description": "Rate limit exceeded",
+    "headers": {
+    "Retry-After": {
+    "description": "Number of seconds to wait before retrying"
+    }
+    }
+    },
+    "500": {
+    "description": "Internal server error"
+    }
+    },
+    "security": [
+    {
+    "HTTPBearer": []
+    }
+    ]
+    }
+    },
+    "/v1/video/status/{video_id}": {
+    "get": {
+    "summary": "Get Video Status",
+    "operationId": "get_video_status_v1_video_status__video_id__get",
+    "security": [
+    {
+    "HTTPBearer": []
+    }
+    ],
+    "parameters": [
+    {
+    "name": "video_id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "title": "Video Id"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/VideoJobStatusResponse"
+    }
+    }
+    }
+    },
+    "401": {
+    "description": "Invalid API key or unauthorized access"
+    },
+    "422": {
+    "description": "Validation Error",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/HTTPValidationError"
+    }
+    }
+    }
+    },
+    "429": {
+    "description": "Rate limit exceeded",
+    "headers": {
+    "Retry-After": {
+    "description": "Number of seconds to wait before retrying"
+    }
+    }
+    },
+    "500": {
+    "description": "Internal server error"
+    }
+    }
+    }
+    },
+    "/v1/journals/list": {
+    "get": {
+    "summary": "Get Journals Route",
+    "operationId": "get_journals_route_v1_journals_list_get",
+    "security": [
+    {
+    "HTTPBearer": []
+    }
+    ],
+    "parameters": [
+    {
+    "name": "page_token",
+    "in": "query",
+    "required": false,
+    "schema": {
+    "anyOf": [
+    {
+    "type": "integer"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Page Token"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/JournalsResponse"
+    }
+    }
+    }
+    },
+    "401": {
+    "description": "Invalid API key or unauthorized access"
+    },
+    "422": {
+    "description": "Validation Error",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/HTTPValidationError"
+    }
+    }
+    }
+    },
+    "429": {
+    "description": "Rate limit exceeded",
+    "headers": {
+    "Retry-After": {
+    "description": "Number of seconds to wait before retrying"
+    }
+    }
+    },
+    "500": {
+    "description": "Internal server error"
+    }
+    }
+    }
+    },
+    "/v1/journals/content/{journal_id}": {
+    "get": {
+    "summary": "Get Journal Content",
+    "operationId": "get_journal_content_v1_journals_content__journal_id__get",
+    "security": [
+    {
+    "HTTPBearer": []
+    }
+    ],
+    "parameters": [
+    {
+    "name": "journal_id",
+    "in": "path",
+    "required": true,
+    "schema": {
+    "type": "string",
+    "title": "Journal Id"
+    }
+    }
+    ],
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/JournalContentResponse"
+    }
+    }
+    }
+    },
+    "401": {
+    "description": "Invalid API key or unauthorized access"
+    },
+    "422": {
+    "description": "Validation Error",
+    "content": {
+    "application/json": {
+    "schema": {
+    "$ref": "#/components/schemas/HTTPValidationError"
+    }
+    }
+    }
+    },
+    "429": {
+    "description": "Rate limit exceeded",
+    "headers": {
+    "Retry-After": {
+    "description": "Number of seconds to wait before retrying"
+    }
+    }
+    },
+    "500": {
+    "description": "Internal server error"
+    }
+    }
+    }
+    },
+    "/v1/health": {
+    "get": {
+    "summary": "Health",
+    "operationId": "health_v1_health_get",
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {}
+    }
+    }
+    }
+    }
+    }
+    },
+    "/v1/favicon.ico": {
+    "get": {
+    "summary": "Favicon",
+    "operationId": "favicon_v1_favicon_ico_get",
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {}
+    }
+    }
+    }
+    }
+    }
+    },
+    "/v1/openapi.json": {
+    "get": {
+    "summary": "Api Platform Openapi",
+    "operationId": "api_platform_openapi_v1_openapi_json_get",
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {}
+    }
+    }
+    }
+    }
+    }
+    },
+    "/v1/docs": {
+    "get": {
+    "summary": "Docs",
+    "operationId": "docs_v1_docs_get",
+    "responses": {
+    "200": {
+    "description": "Successful Response",
+    "content": {
+    "application/json": {
+    "schema": {}
+    }
+    }
+    }
+    }
+    }
+    }
+    },
+    "components": {
+    "schemas": {
+    "ApiResponseJournal": {
+    "properties": {
+    "id": {
+    "type": "string",
+    "title": "Id"
+    },
+    "title": {
+    "type": "string",
+    "title": "Title"
+    },
+    "created_at": {
+    "type": "string",
+    "title": "Created At"
+    },
+    "updated_at": {
+    "type": "string",
+    "title": "Updated At"
+    }
+    },
+    "type": "object",
+    "required": [
+    "id",
+    "title",
+    "created_at",
+    "updated_at"
+    ],
+    "title": "ApiResponseJournal"
+    },
+    "HTTPValidationError": {
+    "properties": {
+    "detail": {
+    "items": {
+    "$ref": "#/components/schemas/ValidationError"
+    },
+    "type": "array",
+    "title": "Detail"
+    }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+    },
+    "JournalContentResponse": {
+    "properties": {
+    "success": {
+    "type": "boolean",
+    "title": "Success"
+    },
+    "message": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Message"
+    },
+    "title": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Title"
+    },
+    "journal_id": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Journal Id"
+    },
+    "content": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Content"
+    },
+    "timestamp": {
+    "type": "string",
+    "title": "Timestamp"
+    }
+    },
+    "type": "object",
+    "required": [
+    "success"
+    ],
+    "title": "JournalContentResponse"
+    },
+    "JournalsResponse": {
+    "properties": {
+    "success": {
+    "type": "boolean",
+    "title": "Success"
+    },
+    "message": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Message"
+    },
+    "journals": {
+    "anyOf": [
+    {
+    "items": {
+    "$ref": "#/components/schemas/ApiResponseJournal"
+    },
+    "type": "array"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Journals"
+    },
+    "next_page_token": {
+    "anyOf": [
+    {
+    "type": "integer"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Next Page Token"
+    }
+    },
+    "type": "object",
+    "required": [
+    "success"
+    ],
+    "title": "JournalsResponse"
+    },
+    "ValidationError": {
+    "properties": {
+    "loc": {
+    "items": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "integer"
+    }
+    ]
+    },
+    "type": "array",
+    "title": "Location"
+    },
+    "msg": {
+    "type": "string",
+    "title": "Message"
+    },
+    "type": {
+    "type": "string",
+    "title": "Error Type"
+    }
+    },
+    "type": "object",
+    "required": [
+    "loc",
+    "msg",
+    "type"
+    ],
+    "title": "ValidationError"
+    },
+    "VideoAPIRequestMessage": {
+    "properties": {
+    "role": {
+    "type": "string",
+    "enum": [
+    "user",
+    "assistant"
+    ],
+    "title": "Role"
+    },
+    "content": {
+    "type": "string",
+    "title": "Content"
+    }
+    },
+    "type": "object",
+    "required": [
+    "role",
+    "content"
+    ],
+    "title": "VideoAPIRequestMessage"
+    },
+    "VideoCreateJobRequest": {
+    "properties": {
+    "model": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Model",
+    "description": "The model to use for the video generation",
+    "default": "picasso"
+    },
+    "messages": {
+    "anyOf": [
+    {
+    "items": {
+    "$ref": "#/components/schemas/VideoAPIRequestMessage"
+    },
+    "type": "array"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Messages",
+    "description": "The messages that will be used to generate the video script"
+    },
+    "include_sources": {
+    "anyOf": [
+    {
+    "type": "boolean"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Include Sources",
+    "description": "Whether to gather data from the web to help with the video script",
+    "default": false
+    },
+    "search_for": {
+    "anyOf": [
+    {
+    "type": "string",
+    "maxLength": 100
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Search For",
+    "description": "The query to search the web for"
+    },
+    "source_count": {
+    "anyOf": [
+    {
+    "type": "integer",
+    "maximum": 5,
+    "minimum": 1
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Source Count",
+    "description": "The number of sources to gather from the web",
+    "default": 3
+    },
+    "length": {
+    "anyOf": [
+    {
+    "type": "integer",
+    "maximum": 5,
+    "minimum": 1
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Length",
+    "description": "The number of paragraphs to generate for the video script",
+    "default": 3
+    },
+    "script": {
+    "anyOf": [
+    {
+    "type": "string",
+    "maxLength": 6000
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Script",
+    "description": "The script to use for the video, with sections delimited by '-----'"
+    },
+    "upload_to_s3": {
+    "anyOf": [
+    {
+    "type": "boolean"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Upload To S3",
+    "description": "Whether to upload the video to S3",
+    "default": false
+    },
+    "no_cache": {
+    "anyOf": [
+    {
+    "type": "boolean"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "No Cache",
+    "description": "Whether to disable caching on our servers for the video",
+    "default": true
+    },
+    "title": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Title",
+    "description": "The title of the video, if you want to provide one",
+    "default": ""
+    }
+    },
+    "type": "object",
+    "title": "VideoCreateJobRequest"
+    },
+    "VideoCreateJobResponse": {
+    "properties": {
+    "success": {
+    "type": "boolean",
+    "title": "Success"
+    },
+    "message": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Message"
+    },
+    "video_id": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Video Id"
+    }
+    },
+    "type": "object",
+    "required": [
+    "success"
+    ],
+    "title": "VideoCreateJobResponse"
+    },
+    "VideoJobStatusResponse": {
+    "properties": {
+    "success": {
+    "type": "boolean",
+    "title": "Success"
+    },
+    "message": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Message"
+    },
+    "completion_percentage": {
+    "anyOf": [
+    {
+    "type": "number"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Completion Percentage"
+    },
+    "video_id": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Video Id"
+    },
+    "status": {
+    "type": "string",
+    "enum": [
+    "pending",
+    "completed",
+    "failed",
+    "status_error"
+    ],
+    "title": "Status"
+    },
+    "response": {
+    "anyOf": [
+    {
+    "$ref": "#/components/schemas/VideoResponse"
+    },
+    {
+    "type": "null"
+    }
+    ]
+    },
+    "error": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Error"
+    }
+    },
+    "type": "object",
+    "required": [
+    "success",
+    "status"
+    ],
+    "title": "VideoJobStatusResponse"
+    },
+    "VideoResponse": {
+    "properties": {
+    "success": {
+    "type": "boolean",
+    "title": "Success"
+    },
+    "error": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Error"
+    },
+    "s3_url": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "S3 Url"
+    },
+    "b64_video": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "B64 Video"
+    },
+    "title": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Title"
+    },
+    "transcript": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Transcript"
+    },
+    "sources": {
+    "anyOf": [
+    {
+    "items": {
+    "$ref": "#/components/schemas/VideoSource"
+    },
+    "type": "array"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Sources"
+    },
+    "cost": {
+    "anyOf": [
+    {
+    "type": "number"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Cost",
+    "default": 0
+    },
+    "model": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Model",
+    "default": "picasso"
+    },
+    "timestamp": {
+    "anyOf": [
+    {
+    "type": "string"
+    },
+    {
+    "type": "null"
+    }
+    ],
+    "title": "Timestamp"
+    }
+    },
+    "type": "object",
+    "required": [
+    "success"
+    ],
+    "title": "VideoResponse"
+    },
+    "VideoSource": {
+    "properties": {
+    "url": {
+    "type": "string",
+    "title": "Url"
+    },
+    "content": {
+    "type": "string",
+    "title": "Content"
+    }
+    },
+    "type": "object",
+    "required": [
+    "url",
+    "content"
+    ],
+    "title": "VideoSource"
+    }
+    },
+    "securitySchemes": {
+    "HTTPBearer": {
+    "type": "http",
+    "scheme": "bearer"
+    }
+    }
+    }
+    }
+    
