@@ -3,13 +3,13 @@ from os import getenv
 from json import dumps
 import time
 
-client = OpennoteClient(api_key=getenv("OPENNOTE_API_KEY"))
+client = OpennoteClient(api_key=getenv("OPENNOTE_API_KEY"), base_url="http://localhost:8080")
 
-SEPERATOR = "\n================================\n"
+SEPERATOR = "================================\n"
 
 if __name__ == "__main__":
     print(SEPERATOR)
-    print("Creating Video")
+    print("Creating Video...")
 
     response = client.video.create(
         model="picasso",
@@ -26,18 +26,19 @@ if __name__ == "__main__":
         title="The Silk Road",
     )
 
-    print("\n\nVideo Creation Response:")
+    print("\nVideo Creation Response:")
     print(dumps(response.model_dump(), indent=4))
 
     print(SEPERATOR)
 
+    status_check_count = 0
     if response.success:
         while True: 
             print(SEPERATOR)
-            print("Checking Video Status")
+            print(f"Checking Video Status (#{status_check_count})...")
             status = client.video.status(response.video_id)
             
-            print(dumps(status.model_dump(), indent=4))
+            print("\n", dumps(status.model_dump(), indent=4))
             print(SEPERATOR)
             if status.status == "pending":
                 time.sleep(15)
@@ -46,6 +47,6 @@ if __name__ == "__main__":
                 break
     
     print(SEPERATOR)
-    print("Video Final Status")
+    print("Video Final Status\n")
     print(dumps(status.model_dump(), indent=4))
     print(SEPERATOR)

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Literal, Optional, List, Union
 
-OPENNOTE_BASE_URL = "https://api.opennote.com/v1"
+OPENNOTE_BASE_URL = "https://api.opennote.com"
 
 # Enums/Literals
 MODEL_CHOICES = Literal["picasso"]
