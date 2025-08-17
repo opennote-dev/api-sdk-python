@@ -9,7 +9,7 @@ from opennote.api_types import (
     VideoAPIRequestMessage,
 )
 from opennote.base_client import BaseClient
-from opennote.api_types import OPENNOTE_BASE_URL
+from opennote.api_types import OPENNOTE_BASE_URL, MODEL_CHOICES
 
 
 class Video:
@@ -21,14 +21,13 @@ class Video:
     def create(
         self,
         messages: Optional[List[VideoAPIRequestMessage]] = None,
-        model: Optional[Literal["picasso"]] = "picasso",
+        model: Optional[MODEL_CHOICES] = "picasso",
         include_sources: Optional[bool] = False,
         search_for: Optional[str] = None,
         source_count: Optional[int] = 3,
         length: Optional[int] = 3,
         script: Optional[str] = None,
         upload_to_s3: Optional[bool] = False,
-        no_cache: Optional[bool] = True,
         title: Optional[str] = "",
     ) -> VideoCreateJobResponse:
         """
@@ -43,7 +42,6 @@ class Video:
             length: Number of paragraphs in script (1-5)
             script: Pre-written script with sections delimited by '-----' (max 6000 chars)
             upload_to_s3: Whether to upload video to S3
-            no_cache: Whether to disable server caching
             title: Title of the video
             
         Returns:
@@ -58,7 +56,6 @@ class Video:
             length=length,
             script=script,
             upload_to_s3=upload_to_s3,
-            no_cache=no_cache,
             title=title,
         )
         
