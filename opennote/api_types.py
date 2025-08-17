@@ -23,7 +23,7 @@ class VideoAPIRequestMessage(BaseModel):
     content: str
 
 class VideoCreateJobRequest(BaseModel):
-    model: Optional[str] = "picasso"
+    model: Optional[MODEL_CHOICES] = "picasso"
     messages: Optional[List[VideoAPIRequestMessage]] = None
     include_sources: Optional[bool] = False
     search_for: Optional[str] = None
@@ -31,7 +31,6 @@ class VideoCreateJobRequest(BaseModel):
     length: Optional[int] = 3
     script: Optional[str] = None
     upload_to_s3: Optional[bool] = False
-    no_cache: Optional[bool] = True
     title: Optional[str] = ""
 
 # Video Response Types
@@ -53,7 +52,7 @@ class VideoResponse(BaseModel):
     transcript: Optional[str] = None
     sources: Optional[List[VideoSource]] = None
     cost: Optional[float] = 0
-    model: Optional[str] = "picasso"
+    model: Optional[MODEL_CHOICES] = "picasso"
     timestamp: Optional[str] = None
 
 class VideoJobStatusResponse(BaseModel):
