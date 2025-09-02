@@ -32,6 +32,7 @@ class VideoCreateJobRequest(BaseModel):
     script: Optional[str] = None
     upload_to_s3: Optional[bool] = False
     title: Optional[str] = ""
+    webhook_url: Optional[str] = None
 
 # Video Response Types
 class VideoCreateJobResponse(BaseModel):

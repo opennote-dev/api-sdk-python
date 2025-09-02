@@ -29,6 +29,7 @@ class Video:
         script: Optional[str] = None,
         upload_to_s3: Optional[bool] = False,
         title: Optional[str] = "",
+        webhook_url: Optional[str] = None,
     ) -> VideoCreateJobResponse:
         """
         Create a new video job.
@@ -43,7 +44,7 @@ class Video:
             script: Pre-written script with sections delimited by '-----' (max 6000 chars)
             upload_to_s3: Whether to upload video to S3
             title: Title of the video
-            
+            webhook_url: URL to send webhook to
         Returns:
             VideoCreateJobResponse with success status and video_id
         """
@@ -57,6 +58,7 @@ class Video:
             script=script,
             upload_to_s3=upload_to_s3,
             title=title,
+            webhook_url=webhook_url,
         )
         
         response = self._client._request(
