@@ -46,7 +46,7 @@ class AsyncVideo:
             script: Pre-written script with sections delimited by '-----' (max 6000 chars)
             upload_to_s3: Whether to upload video to S3
             title: Title of the video
-            webhook_url: URL to send webhook to
+            webhook_url: URL to send the final completion status to (same response type as the status endpoint)
         Returns:
             VideoCreateJobResponse with success status and video_id
         """
