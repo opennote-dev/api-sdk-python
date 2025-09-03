@@ -7,6 +7,8 @@ from opennote.api_types import (
     JournalsResponse,
     JournalContentResponse,
     VideoAPIRequestMessage,
+    FlashcardCreateRequest,
+    FlashcardCreateResponse,
 )
 from opennote.base_client import BaseClient
 from opennote.api_types import OPENNOTE_BASE_URL, MODEL_CHOICES
@@ -29,6 +31,7 @@ class Video:
         script: Optional[str] = None,
         upload_to_s3: Optional[bool] = False,
         title: Optional[str] = "",
+        webhook_url: Optional[str] = None,
     ) -> VideoCreateJobResponse:
         """
         Create a new video job.
@@ -43,7 +46,7 @@ class Video:
             script: Pre-written script with sections delimited by '-----' (max 6000 chars)
             upload_to_s3: Whether to upload video to S3
             title: Title of the video
-            
+            webhook_url: URL to send the final completion status to (same response type as the status endpoint)
         Returns:
             VideoCreateJobResponse with success status and video_id
         """
@@ -57,6 +60,7 @@ class Video:
             script=script,
             upload_to_s3=upload_to_s3,
             title=title,
+            webhook_url=webhook_url,
         )
         
         response = self._client._request(
@@ -131,6 +135,34 @@ class Journals:
             f"/v1/journals/content/{journal_id}",
         )
         return JournalContentResponse(**response)
+    
+
+class Flashcards:
+    """Flashcard endpoints for Opennote API."""
+    
+    def __init__(self, client: "OpennoteClient"):
+        self._client = client
+
+    def create(self, set_description: str, count: int = 10, set_name: Optional[str] = None) -> FlashcardCreateResponse:
+        """
+        Create a new flashcard set.
+
+        Args:
+            set_description: The description of the flashcard set, i.e. what you want to include in the set.
+            count: The number of flashcards to generate
+            set_name: The name of the flashcard set, if you want to provide one. If you do not, one will be generated for you at additional cost.
+
+        Returns:
+            FlashcardCreateResponse with success status and flashcard set name
+        """
+        if not set_description:
+            raise ValueError("set_description must be provided")
+        if not count:
+            raise ValueError("count must be provided")
+
+        request = FlashcardCreateRequest(set_description=set_description, count=count, set_name=set_name)
+        response = self._client._request("POST", "/v1/flashcards/create", json=request.model_dump(exclude_none=True))
+        return FlashcardCreateResponse(**response)
 
 
 class OpennoteClient(BaseClient):
@@ -146,6 +178,7 @@ class OpennoteClient(BaseClient):
         super().__init__(api_key, base_url, timeout, max_retries)
         self.video = Video(self)
         self.journals = Journals(self)
+        self.flashcards = Flashcards(self)
         self._client = None
 
     def __enter__(self):

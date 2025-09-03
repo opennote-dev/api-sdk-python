@@ -32,6 +32,7 @@ class VideoCreateJobRequest(BaseModel):
     script: Optional[str] = None
     upload_to_s3: Optional[bool] = False
     title: Optional[str] = ""
+    webhook_url: Optional[str] = None
 
 # Video Response Types
 class VideoCreateJobResponse(BaseModel):
@@ -83,4 +84,20 @@ class JournalContentResponse(BaseModel):
     title: Optional[str] = None
     journal_id: Optional[str] = None
     content: Optional[str] = None
+    timestamp: str
+
+class Flashcard(BaseModel):
+    front: str
+    back: str
+
+class FlashcardCreateRequest(BaseModel):
+    set_description: str
+    count: Optional[int] = 10
+    set_name: Optional[str] = None
+
+class FlashcardCreateResponse(BaseModel):
+    success: bool 
+    message: Optional[str] = None 
+    set_name: Optional[str] = None
+    flashcards: Optional[List[Flashcard]] = None 
     timestamp: str

@@ -18,6 +18,9 @@ from opennote.api_types import (
     VideoResponse,
     VideoSource,
     ApiResponseJournal,
+    FlashcardCreateRequest,
+    FlashcardCreateResponse,
+    Flashcard,
 )
 
 __all__ = [
@@ -43,4 +46,7 @@ __all__ = [
     "VideoResponse",
     "VideoSource",
     "ApiResponseJournal",
+    "FlashcardCreateRequest",
+    "FlashcardCreateResponse",
+    "Flashcard",
 ]
