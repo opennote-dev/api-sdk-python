@@ -163,7 +163,7 @@ class AsyncFlashcards:
             raise ValueError("count must be provided")
 
         request = FlashcardCreateRequest(set_description=set_description, count=count, set_name=set_name)
-        response = await self._client._request("POST", "/v1/flashcards/create", json=request.model_dump(exclude_none=True))
+        response = await self._client._request("POST", "/v1/interactives/flashcards/create", json=request.model_dump(exclude_none=True))
         return FlashcardCreateResponse(**response)
 
 
