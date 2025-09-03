@@ -85,3 +85,19 @@ class JournalContentResponse(BaseModel):
     journal_id: Optional[str] = None
     content: Optional[str] = None
     timestamp: str
+
+class Flashcard(BaseModel):
+    front: str
+    back: str
+
+class FlashcardCreateRequest(BaseModel):
+    set_description: str
+    count: Optional[int] = 10
+    set_name: Optional[str] = None
+
+class FlashcardCreateResponse(BaseModel):
+    success: bool 
+    message: Optional[str] = None 
+    set_name: Optional[str] = None
+    flashcards: Optional[List[Flashcard]] = None 
+    timestamp: str

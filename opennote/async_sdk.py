@@ -7,6 +7,8 @@ from opennote.api_types import (
     JournalsResponse,
     JournalContentResponse,
     VideoAPIRequestMessage,
+    FlashcardCreateRequest,
+    FlashcardCreateResponse,
 )
 from opennote.base_client import BaseClient
 from opennote.api_types import OPENNOTE_BASE_URL, MODEL_CHOICES
@@ -66,7 +68,7 @@ class AsyncVideo:
             "/v1/video/create",
             json=request.model_dump(exclude_none=True),
         )
-        
+
         return VideoCreateJobResponse(**response)
 
     async def status(self, video_id: str) -> VideoJobStatusResponse:
@@ -136,6 +138,35 @@ class AsyncJournals:
         return JournalContentResponse(**response)
 
 
+class AsyncFlashcards:
+    """Async flashcard endpoints for Opennote API."""
+    
+    def __init__(self, client: "AsyncOpennoteClient"):
+        self._client = client
+
+
+    async def create(self, set_description: str, count: int = 10, set_name: Optional[str] = None) -> FlashcardCreateResponse:
+        """
+        Create a new flashcard set asynchronously.
+
+        Args:
+            set_description: The description of the flashcard set, i.e. what you want to include in the set.
+            count: The number of flashcards to generate
+            set_name: The name of the flashcard set, if you want to provide one. If you do not, one will be generated for you at additional cost.
+
+        Returns:
+            FlashcardCreateResponse with success status and flashcard set name
+        """
+        if not set_description:
+            raise ValueError("set_description must be provided")
+        if not count:
+            raise ValueError("count must be provided")
+
+        request = FlashcardCreateRequest(set_description=set_description, count=count, set_name=set_name)
+        response = await self._client._request("POST", "/v1/flashcards/create", json=request.model_dump(exclude_none=True))
+        return FlashcardCreateResponse(**response)
+
+
 class AsyncOpennoteClient(BaseClient):
     """Asynchronous client for Opennote API."""
     
@@ -149,6 +180,7 @@ class AsyncOpennoteClient(BaseClient):
         super().__init__(api_key, base_url, timeout, max_retries)
         self.video = AsyncVideo(self)
         self.journals = AsyncJournals(self)
+        self.flashcards = AsyncFlashcards(self)
         self._client = None
 
     async def __aenter__(self):
