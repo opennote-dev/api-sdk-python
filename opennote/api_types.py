@@ -6,7 +6,7 @@ OPENNOTE_BASE_URL = "https://api.opennote.com"
 # Enums/Literals
 MODEL_CHOICES = Literal["picasso"]
 VIDEO_STATUS_CHOICES = Literal["pending", "completed", "failed", "status_error"]
-MESSAGE_ROLE_CHOICES = Literal["user", "assistant"]
+MESSAGE_ROLE_CHOICES = Literal["user", "assistant", "system"]
 
 # Error Types
 class ValidationError(BaseModel):
