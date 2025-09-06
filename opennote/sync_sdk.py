@@ -9,6 +9,12 @@ from opennote.api_types import (
     VideoAPIRequestMessage,
     FlashcardCreateRequest,
     FlashcardCreateResponse,
+    PracticeProblemSetJobCreateRequest,
+    PracticeProblemSetJobCreateResponse,
+    PracticeProblemSetStatusResponse,
+    GradeFRQResponse,
+    GradeFRQRequest,
+    PracticeProblem,
 )
 from opennote.base_client import BaseClient
 from opennote.api_types import OPENNOTE_BASE_URL, MODEL_CHOICES
@@ -165,6 +171,36 @@ class Flashcards:
         return FlashcardCreateResponse(**response)
 
 
+class PracticeProblemSets:
+    """Practice problem set endpoints for Opennote API."""
+    
+    def __init__(self, client: "OpennoteClient"):
+        self._client = client
+
+    def create(self, set_description: str, count: int = 5, set_name: Optional[str] = None, search_for_problems: bool = False, webhook_url: Optional[str] = None) -> PracticeProblemSetJobCreateResponse:
+        """
+        Create a new practice problem set.
+        """
+        request = PracticeProblemSetJobCreateRequest(set_description=set_description, count=count, set_name=set_name, search_for_problems=search_for_problems, webhook_url=webhook_url)
+        response = self._client._request("POST", "/v1/interactives/practice/create", json=request.model_dump(exclude_none=True))
+        return PracticeProblemSetJobCreateResponse(**response)
+
+    def status(self, set_id: str) -> PracticeProblemSetStatusResponse:
+        """
+        Get the status of a practice problem set.
+        """
+        response = self._client._request("GET", f"/v1/interactives/practice/status/{set_id}")
+        return PracticeProblemSetStatusResponse(**response)
+
+    def grade(self, problem: PracticeProblem) -> GradeFRQResponse:
+        """
+        Grade a practice problem set.
+        """
+        request = GradeFRQRequest(problem=problem)
+        response = self._client._request("POST", f"/v1/interactives/practice/grade", json=request.model_dump(exclude_none=True))
+        return GradeFRQResponse(**response)
+
+
 class OpennoteClient(BaseClient):
     """Synchronous client for Opennote API."""
     
@@ -179,6 +215,7 @@ class OpennoteClient(BaseClient):
         self.video = Video(self)
         self.journals = Journals(self)
         self.flashcards = Flashcards(self)
+        self.practice = PracticeProblemSets(self)
         self._client = None
 
     def __enter__(self):

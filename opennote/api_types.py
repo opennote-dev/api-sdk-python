@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal, Optional, List, Union
 
 OPENNOTE_BASE_URL = "https://api.opennote.com"
@@ -101,3 +101,57 @@ class FlashcardCreateResponse(BaseModel):
     set_name: Optional[str] = None
     flashcards: Optional[List[Flashcard]] = None 
     timestamp: str
+
+
+class PracticeProblem(BaseModel):
+    problem_type: Literal["mcq", "frq", "selectall"]
+    problem_statement: str
+    correct_answer: Optional[str | List[str]] = None # for MCQ
+    difficulty: Literal["easy", "medium", "hard"] = "medium"
+    answer_choices: Optional[dict[str, str]] = None  # Only for MCQ
+    explanation: Optional[str] = None
+    scoring_details: Optional[str] = None  # Only for FRQ
+    include_graph: bool = False
+    graph_description: Optional[str] = None
+    graph_url: Optional[str] = None
+    user_answer: Optional[str | List[str]] = None  # User's selected option(s) or textarea response
+
+class PracticeProblemSet(BaseModel):
+    set_id: str
+    set_name: Optional[str] = None
+    problems: Optional[list[PracticeProblem]] = None
+    cost: Optional[float] = None
+
+class PracticeProblemSetJobCreateRequest(BaseModel): 
+    set_description: str = Field(description="The description of the practice problem set")
+    count: int = Field(default=5, description="The number of practice problems to create", ge=1, le=15)
+    set_name: Optional[str] = Field(default=None, description="The name of the practice problem set. One will be generated for you at additional cost if you do not provide one.")
+    search_for_problems: bool = Field(default=False, description="Whether to search the web for additional context to help with the practice problem set, at additional cost.")
+    webhook_url: Optional[str] = Field(default=None, description="The webhook URL to send the practice problem set creation status to.")
+
+class PracticeProblemSetJobCreateResponse(BaseModel):
+    success: bool
+    message: Optional[str] = None
+    set_id: Optional[str] = None
+    timestamp: str
+
+class PracticeProblemSetStatusResponse(BaseModel):
+    set_id: str
+    success: bool
+    status: Literal["pending", "completed", "failed", "status_error"]
+    message: Optional[str] = None
+    total_problems: int 
+    completed_problems: int
+    response: Optional[PracticeProblemSet] = None
+    timestamp: str
+
+class GradeFRQRequest(BaseModel):
+    problem: PracticeProblem = Field(description="The practice problem to grade")
+
+class GradeFRQResponse(BaseModel):
+    success: bool
+    timestamp: str
+    score: int
+    explanation: str
+    max_score: int
+    percentage: float
