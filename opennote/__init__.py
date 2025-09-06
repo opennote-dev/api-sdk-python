@@ -21,6 +21,13 @@ from opennote.api_types import (
     FlashcardCreateRequest,
     FlashcardCreateResponse,
     Flashcard,
+    PracticeProblem,
+    PracticeProblemSet,
+    PracticeProblemSetJobCreateRequest,
+    PracticeProblemSetJobCreateResponse,
+    PracticeProblemSetStatusResponse,
+    GradeFRQResponse,
+    GradeFRQRequest,
 )
 
 __all__ = [
@@ -49,4 +56,12 @@ __all__ = [
     "FlashcardCreateRequest",
     "FlashcardCreateResponse",
     "Flashcard",
+    "FlashcardSet",
+    "PracticeProblem",
+    "PracticeProblemSet",
+    "PracticeProblemSetJobCreateRequest",
+    "PracticeProblemSetJobCreateResponse",
+    "PracticeProblemSetStatusResponse",
+    "GradeFRQResponse",
+    "GradeFRQRequest",
 ]
