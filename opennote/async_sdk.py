@@ -1,6 +1,8 @@
 from typing import Optional, List, Literal
 import httpx
 from opennote.api_types import (
+    GradeFRQResponse,
+    PracticeProblem,
     VideoCreateJobRequest,
     VideoCreateJobResponse,
     VideoJobStatusResponse,
@@ -9,6 +11,11 @@ from opennote.api_types import (
     VideoAPIRequestMessage,
     FlashcardCreateRequest,
     FlashcardCreateResponse,
+    PracticeProblemSetJobCreateRequest,
+    PracticeProblemSetJobCreateResponse,
+    PracticeProblemSetStatusResponse,
+    GradeFRQResponse,
+    GradeFRQRequest,
 )
 from opennote.base_client import BaseClient
 from opennote.api_types import OPENNOTE_BASE_URL, MODEL_CHOICES
@@ -167,6 +174,36 @@ class AsyncFlashcards:
         return FlashcardCreateResponse(**response)
 
 
+class AsyncPracticeProblemSets:
+    """Async practice problem set endpoints for Opennote API."""
+    
+    def __init__(self, client: "AsyncOpennoteClient"):
+        self._client = client
+
+    async def create(self, set_description: str, count: int = 5, set_name: Optional[str] = None, search_for_problems: bool = False, webhook_url: Optional[str] = None) -> PracticeProblemSetJobCreateResponse:
+        """
+        Create a new practice problem set asynchronously.
+        """
+        request = PracticeProblemSetJobCreateRequest(set_description=set_description, count=count, set_name=set_name, search_for_problems=search_for_problems, webhook_url=webhook_url)
+        response = await self._client._request("POST", "/v1/interactives/practice/create", json=request.model_dump(exclude_none=True))
+        return PracticeProblemSetJobCreateResponse(**response)
+
+    async def status(self, set_id: str) -> PracticeProblemSetStatusResponse:
+        """
+        Get the status of a practice problem set asynchronously.
+        """
+        response = await self._client._request("GET", f"/v1/interactives/practice/status/{set_id}")
+        return PracticeProblemSetStatusResponse(**response)
+
+    async def grade(self, problem: PracticeProblem) -> GradeFRQResponse:
+        """
+        Grade a practice problem set asynchronously.
+        """
+        request = GradeFRQRequest(problem=problem)
+        response = await self._client._request("POST", f"/v1/interactives/practice/grade", json=request.model_dump(exclude_none=True))
+        return GradeFRQResponse(**response)
+
+
 class AsyncOpennoteClient(BaseClient):
     """Asynchronous client for Opennote API."""
     
@@ -181,6 +218,7 @@ class AsyncOpennoteClient(BaseClient):
         self.video = AsyncVideo(self)
         self.journals = AsyncJournals(self)
         self.flashcards = AsyncFlashcards(self)
+        self.practice = AsyncPracticeProblemSets(self)
         self._client = None
 
     async def __aenter__(self):
