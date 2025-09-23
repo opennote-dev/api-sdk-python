@@ -1,6 +1,6 @@
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, Dict, Any
 import httpx
-from opennote.api_types import (
+from opennote.types import (
     VideoCreateJobRequest,
     VideoCreateJobResponse,
     VideoJobStatusResponse,
@@ -15,9 +15,15 @@ from opennote.api_types import (
     GradeFRQResponse,
     GradeFRQRequest,
     PracticeProblem,
+    ImportFromMarkdownRequest,
+    ImportFromMarkdownResponse,
+    EditJournalRequest,
+    EditJournalResponse,
+    ModelInfoResponse,
+    EditOperation,
 )
 from opennote.base_client import BaseClient
-from opennote.api_types import OPENNOTE_BASE_URL, MODEL_CHOICES
+from opennote.types import OPENNOTE_BASE_URL, MODEL_CHOICES
 
 
 class Video:
@@ -38,6 +44,8 @@ class Video:
         upload_to_s3: Optional[bool] = False,
         title: Optional[str] = "",
         webhook_url: Optional[str] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
+        extra_body: Optional[Dict[str, Any]] = None,
     ) -> VideoCreateJobResponse:
         """
         Create a new video job.
@@ -73,10 +81,12 @@ class Video:
             "POST",
             "/v1/video/create",
             json=request.model_dump(exclude_none=True),
+            extra_headers=extra_headers,
+            extra_body=extra_body,
         )
         return VideoCreateJobResponse(**response)
 
-    def status(self, video_id: str) -> VideoJobStatusResponse:
+    def status(self, video_id: str, extra_headers: Optional[Dict[str, str]] = None) -> VideoJobStatusResponse:
         """
         Get the status of a video job.
         
@@ -92,17 +102,115 @@ class Video:
         response = self._client._request(
             "GET",
             f"/v1/video/status/{video_id}",
+            extra_headers=extra_headers,
         )
         return VideoJobStatusResponse(**response)
 
+
+class JournalEditor:
+    """Journal editing endpoints for the Opennote API."""
+
+    def __init__(self, client: "OpennoteClient"):
+        self._client = client
+
+    def import_from_markdown(self, markdown: str, title: Optional[str] = "Imported Journal", extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> ImportFromMarkdownResponse:
+        """
+        Import a journal from markdown content.
+        
+        Args:
+            markdown: The markdown content to import
+            title: Optional title for the journal (default: "Imported Journal")
+            
+        Returns:
+            ImportFromMarkdownResponse with journal_id and journal_url
+        """
+        request = ImportFromMarkdownRequest(
+            markdown=markdown,
+            title=title
+        )
+        
+        response = self._client._request(
+            "PUT",
+            "/v1/journals/editor/import_from_markdown",
+            json=request.model_dump(exclude_none=True),
+            extra_headers=extra_headers,
+            extra_body=extra_body,
+        )
+        return ImportFromMarkdownResponse(**response)
+
+    def edit(self, journal_id: str, operations: List[EditOperation], extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> EditJournalResponse:
+        """
+        Edit a journal with a list of operations.
+        
+        Args:
+            journal_id: ID of the journal to edit
+            operations: List of edit operations to perform
+            
+        Returns:
+            EditJournalResponse with results for each operation
+        """
+        request = EditJournalRequest(
+            journal_id=journal_id,
+            operations=operations
+        )
+        
+        response = self._client._request(
+            "PATCH",
+            "/v1/journals/editor/edit",
+            json=request.model_dump(exclude_none=True),
+            extra_headers=extra_headers,
+            extra_body=extra_body,
+        )
+        return EditJournalResponse(**response)
+    
+    def model_info(self, journal_id: str, extra_headers: Optional[Dict[str, str]] = None) -> ModelInfoResponse:
+        """
+        Get the ProseMirror model representation of a journal.
+        
+        Args:
+            journal_id: ID of the journal
+            
+        Returns:
+            ModelInfoResponse with the JSON representation of the journal
+        """
+        if not journal_id:
+            raise ValueError("journal_id must be provided")
+        
+        response = self._client._request(
+            "GET",
+            f"/v1/journals/editor/model/{journal_id}",
+            extra_headers=extra_headers,
+        )
+        return ModelInfoResponse(**response)
+    
+    def delete(self, journal_id: str, extra_headers: Optional[Dict[str, str]] = None) -> ModelInfoResponse:
+        """
+        Delete a journal.
+        
+        Args:
+            journal_id: ID of the journal to delete
+            
+        Returns:
+            ModelInfoResponse confirming deletion
+        """
+        if not journal_id:
+            raise ValueError("journal_id must be provided")
+        
+        response = self._client._request(
+            "DELETE",
+            f"/v1/journals/editor/delete/{journal_id}",
+            extra_headers=extra_headers,
+        )
+        return ModelInfoResponse(**response)
 
 class Journals:
     """Journal endpoints for Opennote API."""
     
     def __init__(self, client: "OpennoteClient"):
         self._client = client
+        self.editor = JournalEditor(client)
 
-    def list(self, page_token: Optional[int] = None) -> JournalsResponse:
+    def list(self, page_token: Optional[int] = None, extra_headers: Optional[Dict[str, str]] = None) -> JournalsResponse:
         """
         List journals with pagination.
         
@@ -120,10 +228,11 @@ class Journals:
             "GET",
             "/v1/journals/list",
             params=params,
+            extra_headers=extra_headers,
         )
         return JournalsResponse(**response)
 
-    def content(self, journal_id: str) -> JournalContentResponse:
+    def content(self, journal_id: str, extra_headers: Optional[Dict[str, str]] = None) -> JournalContentResponse:
         """
         Get content of a specific journal.
         
@@ -139,6 +248,7 @@ class Journals:
         response = self._client._request(
             "GET",
             f"/v1/journals/content/{journal_id}",
+            extra_headers=extra_headers,
         )
         return JournalContentResponse(**response)
     
@@ -149,7 +259,7 @@ class Flashcards:
     def __init__(self, client: "OpennoteClient"):
         self._client = client
 
-    def create(self, set_description: str, count: int = 10, set_name: Optional[str] = None) -> FlashcardCreateResponse:
+    def create(self, set_description: str, count: int = 10, set_name: Optional[str] = None, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> FlashcardCreateResponse:
         """
         Create a new flashcard set.
 
@@ -167,7 +277,7 @@ class Flashcards:
             raise ValueError("count must be provided")
 
         request = FlashcardCreateRequest(set_description=set_description, count=count, set_name=set_name)
-        response = self._client._request("POST", "/v1/interactives/flashcards/create", json=request.model_dump(exclude_none=True))
+        response = self._client._request("POST", "/v1/interactives/flashcards/create", json=request.model_dump(exclude_none=True), extra_headers=extra_headers, extra_body=extra_body)
         return FlashcardCreateResponse(**response)
 
 
@@ -177,28 +287,37 @@ class PracticeProblemSets:
     def __init__(self, client: "OpennoteClient"):
         self._client = client
 
-    def create(self, set_description: str, count: int = 5, set_name: Optional[str] = None, search_for_problems: bool = False, webhook_url: Optional[str] = None) -> PracticeProblemSetJobCreateResponse:
+    def create(self, set_description: str, count: int = 5, set_name: Optional[str] = None, search_for_problems: bool = False, webhook_url: Optional[str] = None, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> PracticeProblemSetJobCreateResponse:
         """
         Create a new practice problem set.
         """
         request = PracticeProblemSetJobCreateRequest(set_description=set_description, count=count, set_name=set_name, search_for_problems=search_for_problems, webhook_url=webhook_url)
-        response = self._client._request("POST", "/v1/interactives/practice/create", json=request.model_dump(exclude_none=True))
+        response = self._client._request("POST", "/v1/interactives/practice/create", json=request.model_dump(exclude_none=True), extra_headers=extra_headers, extra_body=extra_body)
         return PracticeProblemSetJobCreateResponse(**response)
 
-    def status(self, set_id: str) -> PracticeProblemSetStatusResponse:
+    def status(self, set_id: str, extra_headers: Optional[Dict[str, str]] = None) -> PracticeProblemSetStatusResponse:
         """
         Get the status of a practice problem set.
         """
-        response = self._client._request("GET", f"/v1/interactives/practice/status/{set_id}")
+        response = self._client._request("GET", f"/v1/interactives/practice/status/{set_id}", extra_headers=extra_headers)
         return PracticeProblemSetStatusResponse(**response)
 
-    def grade(self, problem: PracticeProblem) -> GradeFRQResponse:
+    def grade(self, problem: PracticeProblem, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> GradeFRQResponse:
         """
         Grade a practice problem set.
         """
         request = GradeFRQRequest(problem=problem)
-        response = self._client._request("POST", f"/v1/interactives/practice/grade", json=request.model_dump(exclude_none=True))
+        response = self._client._request("POST", f"/v1/interactives/practice/grade", json=request.model_dump(exclude_none=True), extra_headers=extra_headers, extra_body=extra_body)
         return GradeFRQResponse(**response)
+
+
+class Interactives: 
+    """Interactives endpoints for Opennote API."""
+
+    def __init__(self, client: "OpennoteClient"):
+        self._client = client
+        self.practice = PracticeProblemSets(client)
+        self.flashcards = Flashcards(client)
 
 
 class OpennoteClient(BaseClient):
@@ -210,12 +329,13 @@ class OpennoteClient(BaseClient):
         base_url: str = OPENNOTE_BASE_URL,
         timeout: float = 60.0,
         max_retries: int = 3,
+        default_headers: Optional[Dict[str, str]] = None,
+        default_body: Optional[Dict[str, Any]] = None,
     ):
-        super().__init__(api_key, base_url, timeout, max_retries)
+        super().__init__(api_key, base_url, timeout, max_retries, default_headers, default_body)
         self.video = Video(self)
         self.journals = Journals(self)
-        self.flashcards = Flashcards(self)
-        self.practice = PracticeProblemSets(self)
+        self.interactives = Interactives(self)
         self._client = None
 
     def __enter__(self):
@@ -234,25 +354,36 @@ class OpennoteClient(BaseClient):
         self,
         method: str,
         path: str,
+        json: Optional[Dict[str, Any]] = None,
+        params: Optional[Dict[str, Any]] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
+        extra_body: Optional[Dict[str, Any]] = None,
         **kwargs
     ) -> dict:
         """Make a request to the API."""
+        headers = self._get_headers(extra_headers)
+        
+        # Merge body if provided
+        if json is not None:
+            json = self._merge_body(json, extra_body)
+        
         if not self._client:
             # Create a client for one-off requests
             with httpx.Client(
                 base_url=self.base_url,
-                headers=self._get_headers(),
+                headers=headers,
                 timeout=self.timeout,
             ) as client:
-                response = client.request(method, path, **kwargs)
+                response = client.request(method, path, json=json, params=params, **kwargs)
                 return self._process_response(response)
         else:
-            response = self._client.request(method, path, **kwargs)
+            # Update headers for this request
+            response = self._client.request(method, path, headers=headers, json=json, params=params, **kwargs)
             return self._process_response(response)
 
-    def health(self) -> dict:
+    def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> dict:
         """Check API health status."""
-        return self._request("GET", "/v1/health")
+        return self._request("GET", "/v1/health", extra_headers=extra_headers)
 
 
 Opennote: OpennoteClient = OpennoteClient

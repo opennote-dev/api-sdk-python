@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Literal, Optional, List, Union
+from datetime import datetime
+from typing import Any
 
 OPENNOTE_BASE_URL = "https://api.opennote.com"
 
@@ -155,3 +157,158 @@ class GradeFRQResponse(BaseModel):
     explanation: str
     max_score: int
     percentage: float
+
+
+class ImportFromMarkdownRequest(BaseModel):
+    """Request model for importing a journal from markdown."""
+    markdown: str = Field(description="The markdown content to import.")
+    title: Optional[str] = Field(description="The title of the journal, if you want to provide one.", default="Imported Journal")
+
+    # Allow extra fields for custom metadata
+    class Config:
+        extra = "allow"
+
+
+class ImportFromMarkdownResponse(BaseModel):
+    """Response model for importing a journal from markdown."""
+    success: bool
+    message: Optional[str] = None
+    journal_id: Optional[str] = None
+    journal_url: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
+
+# PROSEMIRROR MODEL INFO 
+
+class Mark(BaseModel):
+    type: str
+    attrs: Optional["BlockAttrs"] = None
+    
+    class Config:
+        extra = "allow"
+
+class BlockAttrs(BaseModel): 
+    id: Optional[str] = None
+    level: Optional[int] = None  # For headings
+    class Config:
+        extra = "allow"
+
+class BlockNode(BaseModel):
+    type: str
+    attrs: Optional[BlockAttrs] = None
+    content: Optional[List['BlockNode']] = None
+    marks: Optional[List[Mark]] = None
+    text: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
+class ModelInfoResponse(BaseModel):
+    success: bool
+    message: Optional[str] = None
+    model: Optional[BlockNode] = Field(description="The JSON representation of the model info.", alias="model")
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
+# EDIT JOURNAL TYPES
+
+class CreateNodeOperation(BaseModel):
+    type: Literal["create_node"]
+    nodeType: str
+    params: List[Any]
+    referenceId: Optional[str] = None
+    position: Optional[Literal["before", "after"]] = None
+
+class UpdateNodeOperation(BaseModel):
+    type: Literal["update_node"]
+    nodeId: str
+    node: BlockNode
+    
+class DeleteNodeOperation(BaseModel):
+    type: Literal["delete_node"]
+    nodeId: str
+
+EditOperation = Union[
+    CreateNodeOperation,
+    UpdateNodeOperation,
+    DeleteNodeOperation
+]
+
+class EditJournalRequest(BaseModel):
+    journal_id: str
+    operations: List[EditOperation]
+    sync_realtime_state: bool = Field(default=True, description="Whether to directly update the state of the journal to all connected users. WARNING: Operations through synced states CANNOT be undone, and will remove Ctrl+Z functionality for all users for the changes made.")
+
+class OperationResultData(BaseModel):
+    # For create_node operations
+    created: Optional[bool] = None
+    nodeId: Optional[str] = None
+    
+    # For update_node operations
+    updated: Optional[str] = None  # ID of the updated node
+    
+    # For delete_node operations
+    deleted: Optional[str] = None
+    
+    
+class EditResults(BaseModel):
+    operation: Literal["create_node", "update_node", "delete_node"]
+    success: bool
+    error: Optional[str] = None
+    data: Optional[OperationResultData] = None
+
+class EditJournalRequest(BaseModel):
+    journal_id: str
+    operations: List[EditOperation]
+
+    class Config:
+        extra = "allow"
+
+class EditJournalResponse(BaseModel):
+    success: bool
+    message: Optional[str] = None
+    journal_id: str
+    results: List[EditResults]
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
+
+__all__ = [
+    "VideoAPIRequestMessage",
+    "VideoCreateJobRequest",
+    "VideoCreateJobResponse",
+    "VideoJobStatusResponse",
+    "VideoResponse",
+    "VideoSource",
+    "ApiResponseJournal",
+    "JournalsResponse",
+    "JournalContentResponse",
+    "FlashcardCreateRequest",
+    "FlashcardCreateResponse",
+    "Flashcard",
+    "PracticeProblem",
+    "PracticeProblemSet",
+    "PracticeProblemSetJobCreateRequest",
+    "PracticeProblemSetJobCreateResponse",
+    "PracticeProblemSetStatusResponse",
+    "GradeFRQResponse",
+    "GradeFRQRequest",
+    "ImportFromMarkdownRequest",
+    "ImportFromMarkdownResponse",
+    "ModelInfoResponse",
+    "EditJournalRequest",
+    "EditJournalResponse",
+    "EditOperation",    
+    "CreateNodeOperation",
+    "UpdateNodeOperation",
+    "DeleteNodeOperation",
+    "EditResults",
+    "OperationResultData",
+    "BlockNode",
+    "BlockAttrs",
+    "Mark",
+    "ValidationError",
+    "HTTPValidationError",
+    "OPENNOTE_BASE_URL",
+    "MODEL_CHOICES",
+    "VIDEO_STATUS_CHOICES",
+    "MESSAGE_ROLE_CHOICES"
+]

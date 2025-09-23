@@ -8,27 +8,7 @@ from opennote.base_client import (
     RateLimitError,
     ServerError,
 )
-from opennote.api_types import (
-    VideoCreateJobRequest,
-    VideoCreateJobResponse,
-    VideoJobStatusResponse,
-    JournalsResponse,
-    JournalContentResponse,
-    VideoAPIRequestMessage,
-    VideoResponse,
-    VideoSource,
-    ApiResponseJournal,
-    FlashcardCreateRequest,
-    FlashcardCreateResponse,
-    Flashcard,
-    PracticeProblem,
-    PracticeProblemSet,
-    PracticeProblemSetJobCreateRequest,
-    PracticeProblemSetJobCreateResponse,
-    PracticeProblemSetStatusResponse,
-    GradeFRQResponse,
-    GradeFRQRequest,
-)
+from opennote.types import __all__ as types_all
 
 __all__ = [
     # Clients
@@ -44,24 +24,5 @@ __all__ = [
     "RateLimitError",
     "ServerError",
     # Types
-    "VideoCreateJobRequest",
-    "VideoCreateJobResponse",
-    "VideoJobStatusResponse",
-    "JournalsResponse",
-    "JournalContentResponse",
-    "VideoAPIRequestMessage",
-    "VideoResponse",
-    "VideoSource",
-    "ApiResponseJournal",
-    "FlashcardCreateRequest",
-    "FlashcardCreateResponse",
-    "Flashcard",
-    "FlashcardSet",
-    "PracticeProblem",
-    "PracticeProblemSet",
-    "PracticeProblemSetJobCreateRequest",
-    "PracticeProblemSetJobCreateResponse",
-    "PracticeProblemSetStatusResponse",
-    "GradeFRQResponse",
-    "GradeFRQRequest",
+    *types_all,
 ]
