@@ -8,3 +8,4 @@ venv
 build
 dist
 opennote.egg-info
+temp.py
