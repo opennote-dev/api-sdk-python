@@ -203,6 +203,35 @@ class BlockNode(BaseModel):
     class Config:
         extra = "allow"
 
+class DeletedJournalData(BaseModel):
+    """Detailed data about the deleted journal."""
+    id: str
+    type: str
+    color: Optional[str] = None
+    title: str
+    content: str
+    comments: List[Any]
+    created_at: str
+    creator_id: str
+    is_trashed: bool
+    trashed_at: Optional[str] = None
+    updated_at: str
+    font_family: str
+    parent_item: Optional[str] = None
+    shared_users: List[str]
+    order_indexes: Optional[Any] = None
+    publish_status: str
+    pending_invites: Optional[Any] = None
+    user_permissions: dict[str, str]
+    publish_subdomain: str
+
+class JournalDeleteResponse(BaseModel):
+    """Response model for journal deletion."""
+    success: bool
+    message: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+    deleted_journal_data: Optional[DeletedJournalData] = None
+
 class ModelInfoResponse(BaseModel):
     success: bool
     message: Optional[str] = None
@@ -310,5 +339,7 @@ __all__ = [
     "OPENNOTE_BASE_URL",
     "MODEL_CHOICES",
     "VIDEO_STATUS_CHOICES",
-    "MESSAGE_ROLE_CHOICES"
+    "MESSAGE_ROLE_CHOICES",
+    "JournalDeleteResponse",
+    "DeletedJournalData"
 ]

@@ -9,6 +9,7 @@ from opennote.types import (
     JournalsResponse,
     JournalContentResponse,
     VideoAPIRequestMessage,
+    JournalDeleteResponse,
     FlashcardCreateRequest,
     FlashcardCreateResponse,
     PracticeProblemSetJobCreateRequest,
@@ -144,13 +145,14 @@ class AsyncJournalEditor:
         )
         return ImportFromMarkdownResponse(**response)
 
-    async def edit(self, journal_id: str, operations: List[EditOperation], extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> EditJournalResponse:
+    async def edit(self, journal_id: str, operations: List[EditOperation], sync_realtime_state: bool = True, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> EditJournalResponse:
         """
         Edit a journal with a list of operations asynchronously.
         
         Args:
             journal_id: ID of the journal to edit
             operations: List of edit operations to perform
+            sync_realtime_state: Whether to directly update the state of the journal to all connected users. WARNING: Operations through synced states CANNOT be undone, and will remove Ctrl+Z functionality for all users for the changes made.
             extra_headers: Additional headers to include in the request
             extra_body: Additional body parameters to include in the request
             
@@ -159,7 +161,8 @@ class AsyncJournalEditor:
         """
         request = EditJournalRequest(
             journal_id=journal_id,
-            operations=operations
+            operations=operations,
+            sync_realtime_state=sync_realtime_state
         )
         
         response = await self._client._request(
@@ -192,7 +195,7 @@ class AsyncJournalEditor:
         )
         return ModelInfoResponse(**response)
     
-    async def delete(self, journal_id: str, extra_headers: Optional[Dict[str, str]] = None) -> ModelInfoResponse:
+    async def delete(self, journal_id: str, extra_headers: Optional[Dict[str, str]] = None) -> JournalDeleteResponse:
         """
         Delete a journal asynchronously.
         
@@ -201,7 +204,7 @@ class AsyncJournalEditor:
             extra_headers: Additional headers to include in the request
             
         Returns:
-            ModelInfoResponse confirming deletion
+            JournalDeleteResponse confirming deletion
         """
         if not journal_id:
             raise ValueError("journal_id must be provided")
@@ -211,7 +214,7 @@ class AsyncJournalEditor:
             f"/v1/journals/editor/delete/{journal_id}",
             extra_headers=extra_headers,
         )
-        return ModelInfoResponse(**response)
+        return JournalDeleteResponse(**response)
 
 
 class AsyncJournals:

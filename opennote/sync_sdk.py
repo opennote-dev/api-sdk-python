@@ -13,6 +13,7 @@ from opennote.types import (
     PracticeProblemSetJobCreateResponse,
     PracticeProblemSetStatusResponse,
     GradeFRQResponse,
+    JournalDeleteResponse,
     GradeFRQRequest,
     PracticeProblem,
     ImportFromMarkdownRequest,
@@ -186,7 +187,7 @@ class JournalEditor:
         )
         return ModelInfoResponse(**response)
     
-    def delete(self, journal_id: str, extra_headers: Optional[Dict[str, str]] = None) -> ModelInfoResponse:
+    def delete(self, journal_id: str, extra_headers: Optional[Dict[str, str]] = None) -> JournalDeleteResponse:
         """
         Delete a journal.
         
@@ -194,7 +195,7 @@ class JournalEditor:
             journal_id: ID of the journal to delete
             
         Returns:
-            ModelInfoResponse confirming deletion
+            JournalDeleteResponse confirming deletion
         """
         if not journal_id:
             raise ValueError("journal_id must be provided")
@@ -204,7 +205,7 @@ class JournalEditor:
             f"/v1/journals/editor/delete/{journal_id}",
             extra_headers=extra_headers,
         )
-        return ModelInfoResponse(**response)
+        return JournalDeleteResponse(**response)
 
 class Journals:
     """Journal endpoints for Opennote API."""
