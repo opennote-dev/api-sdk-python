@@ -11,7 +11,7 @@ if __name__ == "__main__":
     print(SEPERATOR)
     print("Creating Practice Problem Set...")
 
-    response = client.practice.create(
+    response = client.interactives.practice.create(
         set_description="Linear algebra concepts including matrices, eigenvalues, and vector spaces",
         count=3,
         set_name="Linear Algebra Practice",
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         while True:
             print(SEPERATOR)
             print(f"Checking Practice Set Status (#{status_check_count})...")
-            status = client.practice.status(response.set_id)
+            status = client.interactives.practice.status(response.set_id)
             
             print("\n", dumps(status.model_dump(), indent=4))
             print(SEPERATOR)
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         
         first_problem.student_answer = "A matrix is a rectangular array of numbers. Eigenvalues are scalar values that represent how a matrix transforms vectors."
         
-        grade_response = client.practice.grade(first_problem)
+        grade_response = client.interactives.practice.grade(first_problem)
         
         print("\nGrading Response:")
         print(dumps(grade_response.model_dump(), indent=4))
