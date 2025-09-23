@@ -498,22 +498,6 @@ class DeleteNodeOperation(BaseModel):
     type: Literal["delete_node"] = "delete_node"
     nodeId: str
 
-class BatchCreateOperation(BaseModel):
-    """Create multiple nodes"""
-    type: Literal["batch_create"] = "batch_create"
-    nodes: List[Dict[str, Any]]
-
-class BatchUpdateOperation(BaseModel):
-    """Update multiple nodes by replacing them entirely"""
-    type: Literal["batch_update"] = "batch_update"
-    updates: List[Dict[str, Any]]  # Each dict must have 'nodeId' and 'node' keys
-
-class BatchDeleteOperation(BaseModel):
-    """Delete multiple nodes"""
-    type: Literal["batch_delete"] = "batch_delete"
-    nodeIds: List[str]
-
-
 __all__ = [
     "ChartType",
     "Position",
@@ -554,7 +538,4 @@ __all__ = [
     "CreateNodeOperation",
     "UpdateNodeOperation",
     "DeleteNodeOperation",
-    "BatchCreateOperation",
-    "BatchUpdateOperation",
-    "BatchDeleteOperation",
 ]

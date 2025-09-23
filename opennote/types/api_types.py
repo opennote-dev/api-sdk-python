@@ -267,6 +267,9 @@ class EditJournalRequest(BaseModel):
     operations: List[EditOperation]
     sync_realtime_state: bool = Field(default=True, description="Whether to directly update the state of the journal to all connected users. WARNING: Operations through synced states CANNOT be undone, and will remove Ctrl+Z functionality for all users for the changes made.")
 
+    class Config:
+        extra = "allow"
+
 class OperationResultData(BaseModel):
     # For create_node operations
     created: Optional[bool] = None
@@ -284,13 +287,6 @@ class EditResults(BaseModel):
     success: bool
     error: Optional[str] = None
     data: Optional[OperationResultData] = None
-
-class EditJournalRequest(BaseModel):
-    journal_id: str
-    operations: List[EditOperation]
-
-    class Config:
-        extra = "allow"
 
 class EditJournalResponse(BaseModel):
     success: bool
