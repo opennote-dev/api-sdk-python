@@ -436,9 +436,25 @@ class OpennoteClient(BaseClient):
             response = self._client.request(method, path, headers=headers, json=json, params=params, **kwargs)
             return self._process_response(response)
 
-    def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> dict:
+    def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> str:
         """Check API health status."""
-        return self._request("GET", "/v1/health", extra_headers=extra_headers)
+        headers = self._get_headers(extra_headers)
+        
+        if not self._client:
+            # Create a client for one-off requests
+            with httpx.Client(
+                base_url=self.base_url,
+                headers=headers,
+                timeout=self.timeout,
+            ) as client:
+                response = client.request("GET", "/v1/health")
+                response.raise_for_status()
+                return response.text
+        else:
+            # Update headers for this request
+            response = self._client.request("GET", "/v1/health", headers=headers)
+            response.raise_for_status()
+            return response.text
 
 
 Opennote: OpennoteClient = OpennoteClient
