@@ -225,6 +225,40 @@ class DeletedJournalData(BaseModel):
     user_permissions: dict[str, str]
     publish_subdomain: str
 
+
+class CreateJournalRequest(BaseModel):
+    """Request model for creating a journal."""
+    title: str = Field(description="The title of the journal.")
+    
+    class Config:
+        extra = "allow"
+
+class CreateJournalResponse(BaseModel):
+    """Response model for creating a journal."""
+    success: bool
+    message: Optional[str] = None
+    journal_id: Optional[str] = None
+    journal_url: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
+
+class RenameJournalRequest(BaseModel):
+    """Request model for editing a journal title."""
+    journal_id: str = Field(description="The ID of the journal.")
+    title: str = Field(description="The title of the journal.")
+
+    class Config:
+        extra = "allow"
+
+class RenameJournalResponse(BaseModel):
+    """Response model for editing a journal title."""
+    success: bool
+    message: Optional[str] = None
+    old_title: Optional[str] = None
+    new_title: Optional[str] = None
+    journal_id: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
 class JournalDeleteResponse(BaseModel):
     """Response model for journal deletion."""
     success: bool
@@ -319,6 +353,10 @@ __all__ = [
     "ImportFromMarkdownRequest",
     "ImportFromMarkdownResponse",
     "ModelInfoResponse",
+    "CreateJournalRequest",
+    "CreateJournalResponse",
+    "RenameJournalRequest",
+    "RenameJournalResponse",
     "EditJournalRequest",
     "EditJournalResponse",
     "EditOperation",    
