@@ -22,6 +22,10 @@ from opennote.types import (
     EditJournalResponse,
     ModelInfoResponse,
     EditOperation,
+    CreateJournalRequest,
+    CreateJournalResponse,
+    RenameJournalRequest,
+    RenameJournalResponse,
 )
 from opennote.base_client import BaseClient
 from opennote.types import OPENNOTE_BASE_URL, MODEL_CHOICES
@@ -214,6 +218,53 @@ class Journals:
         self._client = client
         self.editor = JournalEditor(client)
 
+    def create(self, title: str, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> CreateJournalResponse:
+        """
+        Create a new journal.
+        
+        Args:
+            title: The title of the journal
+            extra_headers: Additional headers to include in the request
+            extra_body: Additional body parameters to include in the request
+            
+        Returns:
+            CreateJournalResponse with journal_id and journal_url
+        """
+        request = CreateJournalRequest(title=title)
+        
+        response = self._client._request(
+            "PUT",
+            "/v1/journals/editor/create",
+            json=request.model_dump(exclude_none=True),
+            extra_headers=extra_headers,
+            extra_body=extra_body,
+        )
+        return CreateJournalResponse(**response)
+    
+    def rename(self, journal_id: str, title: str, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> RenameJournalResponse:
+        """
+        Rename a journal.
+        
+        Args:
+            journal_id: ID of the journal to rename
+            title: New title for the journal
+            extra_headers: Additional headers to include in the request
+            extra_body: Additional body parameters to include in the request
+            
+        Returns:
+            RenameJournalResponse with old and new titles
+        """
+        request = RenameJournalRequest(journal_id=journal_id, title=title)
+        
+        response = self._client._request(
+            "PATCH",
+            "/v1/journals/editor/rename",
+            json=request.model_dump(exclude_none=True),
+            extra_headers=extra_headers,
+            extra_body=extra_body,
+        )
+        return RenameJournalResponse(**response)
+
     def list(self, page_token: Optional[int] = None, extra_headers: Optional[Dict[str, str]] = None) -> JournalsResponse:
         """
         List journals with pagination.
@@ -385,9 +436,25 @@ class OpennoteClient(BaseClient):
             response = self._client.request(method, path, headers=headers, json=json, params=params, **kwargs)
             return self._process_response(response)
 
-    def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> dict:
+    def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> Literal["OK"] | Any:
         """Check API health status."""
-        return self._request("GET", "/v1/health", extra_headers=extra_headers)
+        headers = self._get_headers(extra_headers)
+        
+        if not self._client:
+            # Create a client for one-off requests
+            with httpx.Client(
+                base_url=self.base_url,
+                headers=headers,
+                timeout=self.timeout,
+            ) as client:
+                response = client.request("GET", "/v1/health")
+                response.raise_for_status()
+                return response.text
+        else:
+            # Update headers for this request
+            response = self._client.request("GET", "/v1/health", headers=headers)
+            response.raise_for_status()
+            return response.text
 
 
 Opennote: OpennoteClient = OpennoteClient
