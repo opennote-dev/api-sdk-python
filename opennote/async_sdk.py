@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Literal
 import httpx
 from opennote.types import (
     GradeFRQResponse,
@@ -469,7 +469,7 @@ class AsyncOpennoteClient(BaseClient):
             response = await self._client.request(method, path, headers=headers, json=json, params=params, **kwargs)
             return self._process_response(response)
 
-    async def health(self, extra_headers: Optional[Dict[str, str]] = None) -> str:
+    async def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> Literal["OK"] | Any:
         """Check API health status asynchronously."""
         headers = self._get_headers(extra_headers)
         

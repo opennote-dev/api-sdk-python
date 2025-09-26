@@ -436,7 +436,7 @@ class OpennoteClient(BaseClient):
             response = self._client.request(method, path, headers=headers, json=json, params=params, **kwargs)
             return self._process_response(response)
 
-    def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> str:
+    def _health(self, extra_headers: Optional[Dict[str, str]] = None) -> Literal["OK"] | Any:
         """Check API health status."""
         headers = self._get_headers(extra_headers)
         
