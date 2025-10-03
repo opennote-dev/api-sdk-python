@@ -122,13 +122,14 @@ class AsyncJournalEditor:
     def __init__(self, client: "AsyncOpennoteClient"):
         self._client = client
 
-    async def import_from_markdown(self, markdown: str, title: Optional[str] = "Imported Journal", extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> ImportFromMarkdownResponse:
+    async def import_from_markdown(self, markdown: str, title: Optional[str] = "Imported Journal", team_slug: Optional[str] = None, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> ImportFromMarkdownResponse:
         """
         Import a journal from markdown content asynchronously.
         
         Args:
             markdown: The markdown content to import
             title: Optional title for the journal (default: "Imported Journal")
+            team_slug: The team slug that the journal is associated with
             extra_headers: Additional headers to include in the request
             extra_body: Additional body parameters to include in the request
             
@@ -137,7 +138,8 @@ class AsyncJournalEditor:
         """
         request = ImportFromMarkdownRequest(
             markdown=markdown,
-            title=title
+            title=title,
+            team_slug=team_slug
         )
         
         response = await self._client._request(
@@ -228,19 +230,20 @@ class AsyncJournals:
         self._client = client
         self.editor = AsyncJournalEditor(client)
 
-    async def create(self, title: str, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> CreateJournalResponse:
+    async def create(self, title: str, team_slug: Optional[str] = None, extra_headers: Optional[Dict[str, str]] = None, extra_body: Optional[Dict[str, Any]] = None) -> CreateJournalResponse:
         """
         Create a new journal asynchronously.
         
         Args:
             title: The title of the journal
+            team_slug: The team slug that the journal is associated with, if the type is `team`
             extra_headers: Additional headers to include in the request
             extra_body: Additional body parameters to include in the request
             
         Returns:
             CreateJournalResponse with journal_id and journal_url
         """
-        request = CreateJournalRequest(title=title)
+        request = CreateJournalRequest(title=title, team_slug=team_slug)
         
         response = await self._client._request(
             "PUT",
