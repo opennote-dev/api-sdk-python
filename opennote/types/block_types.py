@@ -128,6 +128,17 @@ def _block_to_node_params(block: "BaseBlock") -> List[Any]:
         params = [block.src]
         if block.alt is not None:
             params.append(block.alt)
+        else:
+            params.append("")
+        # Add attrs with align, width, and height at index 2
+        attrs = {}
+        if block.align:
+            attrs["align"] = block.align
+        if block.width is not None:
+            attrs["width"] = block.width
+        if block.height is not None:
+            attrs["height"] = block.height
+        params.append(attrs)
         return params
     
     elif isinstance(block, VideoBlock):
@@ -185,7 +196,7 @@ def _block_to_node_params(block: "BaseBlock") -> List[Any]:
     
     elif isinstance(block, AICompletionBlock):
         # aiCompletion: (old: string, newText: string, complete: boolean = false, attrs?: Record<string, any>)
-        return [block.old, block.new, block.complete]
+        return [block.old if block.old else "", block.new, block.complete]
     
     elif isinstance(block, FlashcardSetBlock):
         # flashcardSet: (setName: string, flashcards: any[] = [], description: string = '', attrs?: Record<string, any>)
@@ -366,6 +377,7 @@ class ImageBlock(BaseBlock):
     alt: Optional[str] = ""
     width: Optional[int] = None
     height: Optional[int] = None
+    align: Optional[str] = "center"
 
 class VideoBlock(BaseBlock):
     """Video block"""
@@ -422,7 +434,7 @@ class JournalLinkBlock(BaseBlock):
 
 class AICompletionBlock(BaseBlock):
     """AI text completion block"""
-    old: str
+    old: Optional[str] = None
     new: str
     complete: bool = False
 
