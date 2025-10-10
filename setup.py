@@ -1,11 +1,13 @@
 import setuptools
 
+VERSION = "2.3.3"
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="opennote",
-    version="2.3.2",
+    version=VERSION,
     author="Opennote, Inc.",
     license="MIT",
     author_email="devtools@opennote.me",
